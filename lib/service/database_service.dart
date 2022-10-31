@@ -83,7 +83,7 @@ class DatabaseService {
   }
 
   // Define a function that inserts breeds into the database
-  Future<void> deleteTask(Task task) async {
+  Future<void> deleteTask(String name) async {
     // Get a reference to the database.
     final db = await _databaseService.database;
 
@@ -91,7 +91,7 @@ class DatabaseService {
     // `conflictAlgorithm` to use in case the same breed is inserted twice.
     //
     // In this case, replace any previous data.
-    await db.delete('task', where: 'id = ?', whereArgs: [task.status]
+    await db.delete('task', where: 'name = ?', whereArgs: [name]
         // conflictAlgorithm: ConflictAlgorithm.replace,
         );
   }
@@ -115,14 +115,12 @@ class DatabaseService {
     final db = await _databaseService.database;
 
     // Update the given breed
-    await db.update(
-      'task',
-      task.toMap(),
-      // Ensure that the Breed has a matching id.
-      where: 'id = ?',
-      // Pass the Breed's id as a whereArg to prevent SQL injection.
-      whereArgs: [task.status],
-    );
+    await db.update('task', task.toMap(),
+        // Ensure that the Breed has a matching id.
+        where: 'id = ?',
+        // Pass the Breed's id as a whereArg to prevent SQL injection.
+        whereArgs: [task.id],
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   // Future<void> updateDog(Dog dog) async {

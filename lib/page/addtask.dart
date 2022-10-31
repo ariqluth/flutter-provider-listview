@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider_listview/service/tasklist.dart';
 
-final _formKey = GlobalKey<FormState>();
-
 class AddTaskPage extends StatelessWidget {
   const AddTaskPage({super.key});
 
@@ -13,19 +11,21 @@ class AddTaskPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Tambah Task Baru"),
       ),
-      body: CustomField(),
+      body: const MyCustomForm(),
     );
   }
 }
 
-class CustomField extends StatefulWidget {
+class MyCustomForm extends StatefulWidget {
+  const MyCustomForm({super.key});
+
   @override
   MyCustomFormState createState() {
     return MyCustomFormState();
   }
 }
 
-class MyCustomFormState extends State<CustomField> {
+class MyCustomFormState extends State<MyCustomForm> {
   // void _submit() {
   //   final isValid = _formKey.currentState!.validate();
   //   if (!isValid) {
@@ -34,24 +34,29 @@ class MyCustomFormState extends State<CustomField> {
   //   _formKey.currentState?.save();
   // }
 
+  final _formKey = GlobalKey<FormState>();
+  bool isValid = false;
+  bool buttonenabled = false;
+
+  // TextEditingController _taskController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Form(
+      key: _formKey,
+      // padding: const EdgeInsets.all(8.0),
       child: Column(
-        key: _formKey,
         children: [
           TextFormField(
+            validator: (value) {
+              if (value!.length < 5) {
+                return 'Masukan min 5 character';
+              }
+              return null;
+            },
             decoration: const InputDecoration(
               hintText: "Masukkan Task Baru",
             ),
-            validator: (value) {
-              if (value == null || value.length < 5) {
-                return 'Masukan min 5 character';
-              } else {
-                return null;
-              }
-            },
             onChanged: (value) {
               context.read<Tasklist>().changeTaskName(value);
             },
@@ -64,12 +69,17 @@ class MyCustomFormState extends State<CustomField> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    context.read<Tasklist>().addTask();
                     if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context, true);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Processing Data')),
-                      );
+                      setState(() {
+                        buttonenabled = false;
+                        context.read<Tasklist>().addTask();
+                        Navigator.pop(context, true);
+                        // formKey.currentState?.save();
+                        // taskController.clear();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Processing Data')),
+                        );
+                      });
                     }
                   },
                   child: const Text("Tambah Task Baru"),

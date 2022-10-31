@@ -19,6 +19,8 @@ class _MyListPageState extends State<MyListPage> {
     context.read<Tasklist>().fetchTaskList();
   }
 
+  final dc = DismissDirection.endToStart;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,41 +38,72 @@ class _MyListPageState extends State<MyListPage> {
                   var task = context.watch<Tasklist>().taskList[index];
                   return Dismissible(
                     key: UniqueKey(),
-                    direction: DismissDirection.endToStart,
-                    confirmDismiss: (direction) {
-                      return showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                                title: Text('Konfimasikan Data'),
-                                content: Text(
-                                    "apakah kamu pingin menghapus data ini ? "),
-                                actions: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      context.read<Tasklist>().deleteTask();
-                                      Navigator.pop(context, true);
-                                    },
-                                    child: Text("Konfirmasi"),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop(false);
-                                    },
-                                    child: Text("Batalkan"),
-                                  )
-                                ],
-                              ));
-                    },
+                    // confirmDismiss: (dc) {
+                    //   return showDialog(
+                    //       context: context,
+                    //       builder: (context) => AlertDialog(
+                    //             title: Text('Konfimasikan Data'),
+                    //             content: Text(
+                    //                 "apakah kamu pingin menghapus data ini ? "),
+                    //             actions: [
+                    //               ElevatedButton(
+                    //                 onPressed: () {
+                    //                   context.read<Tasklist>().deleteTask(task);
+                    //                   Navigator.pop(context, true);
+                    //                 },
+                    //                 child: Text("Konfirmasi"),
+                    //               ),
+                    //               ElevatedButton(
+                    //                 onPressed: () {
+                    //                   Navigator.of(context).pop(false);
+                    //                 },
+                    //                 child: Text("Batalkan"),
+                    //               )
+                    //             ],
+                    //           ));
+                    // },
+                    background: Container(
+                      color: Colors.blue,
+                      child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.inbox_rounded, color: Colors.white),
+                            Text('bergerak Edit data',
+                                style: TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    secondaryBackground: Container(
+                      color: Colors.red,
+                      child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Icon(Icons.delete, color: Colors.white),
+                            Text('bergerak Hapus data',
+                                style: TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    ),
                     onDismissed: (direction) {
-                      // print(direction);
-                      context.read<Tasklist>().deleteTask();
+                      if (direction == DismissDirection.startToEnd) {
+                        Navigator.pushNamed(context, "/updateTask");
+                        if (!mounted) return;
+                        context.read<Tasklist>().fetchTaskList();
+                        print("edit data");
+                      } else {
+                        context.read<Tasklist>().deleteTask(task);
+                      }
                     },
                     child: ListTile(
                       title:
                           Text(context.watch<Tasklist>().taskList[index].name),
                     ),
                     // background: buildSwipeActionLeft(),
-                    background: buildSwipeActionRight(),
                   );
                 },
               ),
